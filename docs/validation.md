@@ -23,7 +23,9 @@
 | 실기기·Safari·Firefox | 미실행 | PC·모바일 Chromium 에뮬레이션과 구별 |
 | GitHub API 연결 | 확인 | 저장소 메타데이터 조회 가능, Pages 사이트 조회 404 |
 | Pages 사이트 생성 | 차단 | POST /repos/YunSangYeong/Computer-Literacy2/pages → 403 Resource not accessible by integration |
-| 원격 CI·Pages | 커밋 반영 후 확인 | 아래 원격 결과 기록에 별도 기술 |
+| 원격 CI validate | 통과 | 07aa34c 커밋, run 39264662443의 validate 성공 |
+| 원격 Pages deploy | 실패·설정 차단 | 같은 실행의 configure-pages 사이트 조회 404 |
+| 공개 사이트 | HTTP 404 | 정상 게시되지 않았음을 별도 확인 |
 
 `npm run check`의 697개는 기존 모델/예제 검사 34개와 신규 검사 663개
 (660개 조건 변형 및 보존·구성·시험 추출 검사 3개)다.
@@ -54,3 +56,19 @@ Space/포커스 보호를 유지한다. 500문항 랜덤 순회에서 ID 중복 
 별도 토큰을 만들거나 값을 요구하지 않았다. 저장소 Settings → Pages → Source를
 GitHub Actions로 설정해야 한다. 이 설정이 없으면 로컬 검사와 원격 validate가
 성공하더라도 Pages 배포는 완료되지 않는다.
+
+## 정확한 커밋의 원격 결과
+
+- 앱·문항 커밋: `07aa34cdc6c64f03737e103b26182a67060e4fb0`
+- 원격 main에 동일 SHA가 반영된 것을 git ls-remote로 확인했다.
+- Actions: https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39264662443
+- validate 성공: https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39264662443/job/118100992095
+- deploy 실패: https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39264662443/job/118101536785
+- GitHub 웹의 실제 오류: `Get Pages site failed. Please verify that the repository has Pages enabled and configured to build using GitHub Actions`, `HttpError: Not Found`.
+- 공개 예정 주소 https://YunSangYeong.github.io/Computer-Literacy2/ 의 실제 응답은 HTTP 404였다.
+- 로그 압축 파일의 다운로드 도메인은 환경에서 Forbidden으로 차단되어 전체 원격 로그를 받지 못했다.
+  원격 작업별 success/failure는 GitHub API와 웹 화면으로 확인했다. 테스트 개수 697/28은 로컬 실행 결과다.
+
+사이트 활성화에는 현재 integration에 없는 Pages 관리 권한이 필요하다.
+외부 설정을 묻거나 추가 토큰을 요구하지 않고, 수행 가능한 문항 확장·검토·로컬 검증·원격 반영을 완료했다.
+이 기록만 추가한 후속 커밋은 [skip ci]로 저장하며, 위 앱 커밋의 CI 결과와 구별한다.
