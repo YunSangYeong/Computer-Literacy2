@@ -81,3 +81,8 @@ iframe 내부 클릭 후 Space 동작과 해당 브라우저의 저장 허용 �
 ## 검증 결과
 
 [검증·배포 기록](docs/validation.md)에 실제 실행 결과와 남은 작업을 기록한다.
+
+현재 원격 결과: 앱 커밋 `10cfbd5`의 [Actions 실행](https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39261361587)에서
+검증 작업은 성공했고 Pages 사이트 조회 404로 배포가 실패했다.
+Settings → Pages → Source를 GitHub Actions로 설정한 뒤 실패 작업 재실행이 필요하다.
+공식 규칙 대조는 네트워크 접근 허용 후 계속해야 한다.
