@@ -1,55 +1,56 @@
-# 검증 기록 — 2026-10-19
+# 1,000문항 확장 검증 기록 — 2026-10-19
 
-작업 디렉터리 `/workspace/Computer-Literacy2`, Node 24.19.0.
+작업 디렉터리 `/workspace/Computer-Literacy2`, Node 24.19.0, 시스템 Chromium 사용.
+이전 60문항 버전의 결과는 [보존 기록](validation-60.md)과 구별한다.
 
 | 검사 | 결과 | 근거 |
 | --- | --- | --- |
-| 표준 적용 | 통과 | 고정 커밋의 App/model/styles/config/tests 재사용, 스킬 폴더 전체와 AGENTS 연결 |
-| 공식 규칙 대조 | 차단 | license.korcham.net HTTPS CONNECT 403, 잠정 규칙 표시 |
-| 기본 문제은행 | 내부 검토 완료 | 자체 제작 60개, 과목별 30, 기출·복원·숫자 변형 0 |
-| 외부 문항/출제기준 검수 | 미완료 | docs/content-review.md, 전문가 검수·실제 Excel 실행 없음 |
-| 설치 | 통과 | npm ci --cache /tmp/computer-literacy-npm-cache --no-audit --no-fund, exit 0 |
-| 단위 검사 | 통과 | npm run check: 34개 통과, exit 0 |
-| 빌드 | 통과 | TypeScript + Vite 프로덕션 빌드, exit 0 |
-| PC/모바일 브라우저 | 통과 | 시스템 Chromium, Desktop Chrome/Pixel 7 에뮬레이션 총 22개, exit 0 |
-| 실기기/Safari/Firefox | 미실행 | Chromium 에뮬레이션과 구별 |
-| GitHub API | 차단 | gh api repos/YunSangYeong/Computer-Literacy2: Forbidden |
-| 원격 커밋 | 통과 | main: 10cfbd56cbb2a7938cb3f10fb0a640da727bb160 원격 조회 확인 |
-| GitHub Actions validate | 통과 | run 39261361587, validate 성공/Pages artifact 1개 업로드 |
-| GitHub Pages deploy | 차단 | 같은 실행의 configure-pages 사이트 조회 404 Not Found |
-| 공개 사이트 동작 | 미확인 | 배포 실패, 기존 공개 사이트 동작을 추정하지 않음 |
-| 로컬 iframe | 통과/제한 확인 | 같은 origin: Space+저장 정상, opaque parent: Space 정상·저장 제한 경고 |
+| 총 문항·과목별 수 | 통과 | 1,000개, 컴퓨터 일반 500·스프레드시트 일반 500 |
+| 기존 60문항 보존 | 통과 | JSON 객체 전체 SHA-256 대조, 이전 ID·보기·정답·해설·메타데이터 동일 |
+| 중복·등록 규격 | 통과 | 1,000 고유 ID·정규화 본문/보기, 보기 4개·정답 범위·권리·연도 null 검사 |
+| 구성 구분 | 통과 | 개별 작성 340개, 조건 변형 660개=66유형×10, 기출·복원 0 |
+| 조건 변형 | 통과 | 660개 모두 본문 파싱→독립 재계산→단위·표시·정답 번호·유일한 정답 검사 |
+| 원고 재현 | 통과 | 동일 JSON·CSV/JSON 양식·집계 재생성 검사 |
+| 단위 테스트 | 통과 | npm test, 697개 통과, exit 0 |
+| 타입·빌드 | 통과(경고 있음) | npm run check / npm run test:e2e의 TypeScript+Vite, exit 0 |
+| PC·모바일 | 통과 | Chromium Desktop Chrome/Pixel 7 에뮬레이션, 28개 통과, exit 0 |
+| 이전 기록 호환 | 통과 | 예전 40문항 진행 시험·오답·북마크를 1,000문항 앱에서 복원 |
+| 문자 보기 | 통과 | TRIM 보기의 공백과 따옴표·즉시 채점·Space 이동 확인 |
+| 시험 핵심 규칙 | 직접 확인 | 대한상공회의소 안내·출제기준 PDF HTTPS 200; docs/official-rules.md |
+| 전 범위·실제 난이도 재현 | 미입증 | 자체 학습 구성과 실제 시험 분포는 구별 |
+| 문항 검수 | 내부 검토 | 원고·보기·해설 및 유형 검토, 외부 전문가 검수 미완료 |
+| 실제 Excel 실행 | 미실행 | TypeScript 독립 함수 계산과 실제 Excel 실행은 구별 |
+| 실기기·Safari·Firefox | 미실행 | PC·모바일 Chromium 에뮬레이션과 구별 |
+| GitHub API 연결 | 확인 | 저장소 메타데이터 조회 가능, Pages 사이트 조회 404 |
+| Pages 사이트 생성 | 차단 | POST /repos/YunSangYeong/Computer-Literacy2/pages → 403 Resource not accessible by integration |
+| 원격 CI·Pages | 커밋 반영 후 확인 | 아래 원격 결과 기록에 별도 기술 |
 
-브라우저 시나리오는 버전 메뉴 부재, 40문항 답변/60점 합격, 북마크·복원·해설,
-오답 복습·통계, 40분 자동 제출/만료 재접속/중복 방지/만료 후 답안 차단,
-즉시 채점, JSON/CSV 등록·중복·검수·오류 원자성·초기화,
-손상 저장 원본 보존, 두 모드의 실제 Space keydown/keyup·포커스,
-미응답/길게 누르기/수정키/컨트롤/대화상자/마지막 문제 보호를 확인했다.
-추가 브라우저 검사로 평균 67.5점 과락 결과, 답안 변경 즉시 저장, JSON 백업 내용,
-IME/수정키 보호, 저장 공간 부족 경고를 확인했다.
-과락 경계는 단위 검사에서 평균 67.5점·한 과목 35점 불합격과 과목 40점 합격을 확인했다.
+`npm run check`의 697개는 기존 모델/예제 검사 34개와 신규 검사 663개
+(660개 조건 변형 및 보존·구성·시험 추출 검사 3개)다.
+697개가 개념 문항 697개에 대한 전문가 검수를 뜻하지 않는다.
 
-네트워크 초안에 license.korcham.net, support.microsoft.com, api.github.com,
-yunsangyeong.github.io를 추가했다. 이 초안 저장은 현재 실행 환경에의 적용이나
-환경 게시를 뜻하지 않는다. 접근 허용 후 공식 규칙·문항 근거 대조와 배포 결과 확인이 남는다.
+브라우저 28개는 기존 시나리오 22개에 새 구성/검색/내보내기, 문자 공백,
+이전 진행 시험 복원 시나리오 각 PC·모바일 6개를 추가했다.
+시험 시간·제출·해설·오답·북마크·통계·등록·초기화·손상 저장 보호·백업·IME·
+Space/포커스 보호를 유지한다. 500문항 랜덤 순회에서 ID 중복 방지도 단위 검사한다.
 
-## 원격 결과와 필요한 외부 설정
+빌드의 은행 포함 JS는 약 1.36MB(압축 약 158KB)로 Vite의 500KB 청크 경고가 있다.
+현재 브라우저 검사는 정상 완료했으며 경고를 설정으로 숨기지 않았다.
 
-앱 커밋: `10cfbd56cbb2a7938cb3f10fb0a640da727bb160`
+## 재현 자료
 
-실행: https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39261361587
+- 원고: scripts/build_bank.py, scripts/manuscripts/*.tsv, scripts/expanded_bank.py
+- 결과: src/data/questions.json
+- 전체 데이터 파일 SHA-256: `bf5c0d0868b1b27523c2ca83e46b315cc68c9d525f5e30758ffa91a234a70e87`
+- 기존 60개 JSON 객체 SHA-256: `afcce64d36fb5fa49157b5ecc865418bface2ac3d97c19ba7b5973386ccd5a06`
+- 생성: python scripts/build_bank.py
+- 단위·빌드: npm run check
+- 브라우저: PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
-- validate 성공: https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39261361587/job/118089554202
-- deploy 실패: https://github.com/YunSangYeong/Computer-Literacy2/actions/runs/39261361587/job/118090126470
-- 오류: `HttpError: Not Found`, `Get Pages site failed. Please verify that the repository has Pages enabled and configured to build using GitHub Actions`.
-- 공식 actions/configure-pages v5의 action.yml을 읽어 `enablement`에는 기본 GITHUB_TOKEN 외의 토큰과 관리 권한이 필요함을 확인했다. 검증되지 않은 토큰 우회 설정을 넣지 않았다.
+## 배포 제약
 
-저장소 Settings → Pages → Source를 GitHub Actions로 설정하고 위 실행의 실패한
-작업을 다시 실행해야 한다. 이 환경에서는 api.github.com이 차단되어 설정 변경을
-수행하지 못했다. 토큰 값을 채팅으로 제공할 필요는 없다.
-공식 규칙 대조를 계속하려면 환경 설정에 저장한 도메인 변경을 검토·저장하고
-환경을 게시해야 한다. 초안에는 install_script와 start_skill도 저장되어 있다.
-공식 자료 직접 대조와 실제 공개 사이트 검증은 이 작업에서 완료되지 않았다.
-
-이 문서의 원격 결과는 위 앱 커밋에 관한 것이며 이후 문서 전용 커밋의
-CI/배포 성공을 의미하지 않는다. 문서 전용 결과 기록은 CI를 재실행하지 않는다.
+기존 플랫폼 인증으로 실제 Pages 사이트 생성을 시도했다. 저장소 메타데이터의
+관리 권한 표시와 별개로, 해당 생성 API는 integration 권한 부족 403을 반환했다.
+별도 토큰을 만들거나 값을 요구하지 않았다. 저장소 Settings → Pages → Source를
+GitHub Actions로 설정해야 한다. 이 설정이 없으면 로컬 검사와 원격 validate가
+성공하더라도 Pages 배포는 완료되지 않는다.

@@ -22,11 +22,11 @@ import {
 } from "../src/model";
 const bank = BASE_BANK;
 describe("컴퓨터활용능력 2급 문제은행", () => {
-  it("자체 제작 60문항, 과목별 30문항, 고유 ID와 본문 및 출처", () => {
-    expect(bank).toHaveLength(60);
-    expect(new Set(bank.map(q => q.id)).size).toBe(60);
-    expect(new Set(bank.map(fingerprint)).size).toBe(60);
-    for (const subject of SUBJECTS) expect(bank.filter(q=>q.subject===subject)).toHaveLength(30);
+  it("자체 제작 1,000문항, 과목별 500문항, 고유 ID와 본문 및 출처", () => {
+    expect(bank).toHaveLength(1000);
+    expect(new Set(bank.map(q => q.id)).size).toBe(1000);
+    expect(new Set(bank.map(fingerprint)).size).toBe(1000);
+    for (const subject of SUBJECTS) expect(bank.filter(q=>q.subject===subject)).toHaveLength(500);
     for (const q of bank) {
       expect(()=>validateQuestion(q)).not.toThrow();
       expect(q.type).toBe("original");
@@ -35,11 +35,11 @@ describe("컴퓨터활용능력 2급 문제은행", () => {
       expect(q.explanation.length).toBeGreaterThan(30);
       expect(q.reviewNote).toContain("외부 자료 직접 대조 및 전문가 검수 미완료");
       expect(q.rights).toContain("CC BY 4.0");
-      expect(q.family).toBeUndefined();
+      if (!q.exercise) expect(q.family).toBeUndefined();
     }
   });
   it("원고 재생성이 JSON 및 등록 양식을 바꾸지 않는다", () => {
-    const files = ["src/data/questions.json", "public/templates/questions.json", "public/templates/questions.csv"];
+    const files = ["src/data/questions.json", "public/templates/questions.json", "public/templates/questions.csv", "docs/bank-composition.json"];
     const before = files.map(f=>readFileSync(f,"utf8"));
     execFileSync("python", ["scripts/build_bank.py"]);
     expect(files.map(f=>readFileSync(f,"utf8"))).toEqual(before);
@@ -155,12 +155,12 @@ describe("랜덤 학습", () => {
   it("한 과목의 모든 문항을 순회하기 전에는 중복이 없다", () => {
     let p = startPractice(bank, "main", "컴퓨터 일반");
     const ids = new Set<string>();
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 500; i++) {
       expect(ids.has(p.currentId)).toBe(false);
       ids.add(p.currentId);
       p = nextPractice(p, bank);
     }
-    expect(ids.size).toBe(30);
+    expect(ids.size).toBe(500);
     expect(p.subject).toBe("컴퓨터 일반");
   });
   it("즉시 채점·연속 정답·통계를 저장하며 중복 채점을 방지한다", () => {

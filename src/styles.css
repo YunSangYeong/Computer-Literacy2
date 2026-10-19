@@ -2642,3 +2642,6 @@ footer > span:first-child {
     visibility: visible;
   }
 }
+
+/* Text-function answers must preserve meaningful spaces. */
+.choice > span:nth-child(2), .question-stem { white-space: pre-wrap; overflow-wrap: anywhere; }

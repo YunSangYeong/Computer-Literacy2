@@ -878,6 +878,7 @@ function App() {
                         .length
                     }
                   </p>
+                  <p>기본 은행: 개별 작성 {BASE_BANK.filter(q => !q.family).length}개 · 조건 변형 {BASE_BANK.filter(q => q.family).length}개 ({new Set(BASE_BANK.filter(q => q.family).map(q => q.family)).size}유형)</p>
                 </div>
                 <button
                   className="text-button"

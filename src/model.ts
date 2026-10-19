@@ -23,6 +23,14 @@ export interface Question {
   version: Version;
   rights: string;
   family?: string;
+  conceptGroup?: string;
+  exercise?: {
+    kind: string;
+    inputs: (number | string | null)[];
+    expected: number | string;
+    unit: string;
+    display: "number" | "binary" | "octal" | "hex" | "quoted";
+  };
   calculation?: {
     kind: string;
     values: number[];

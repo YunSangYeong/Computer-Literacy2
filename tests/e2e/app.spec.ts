@@ -32,7 +32,7 @@ test("학습 기준 선택 제거·모바일 화면·이전 선택 복원", asyn
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  await expect(page.locator(".bank-summary")).toContainText(/등록\s*60문항/);
+  await expect(page.locator(".bank-summary")).toContainText(/등록\s*1000문항/);
   await expect(page.getByLabel("학습 기준")).toHaveCount(0);
   await expect(page.locator("main")).not.toContainText("학습 기준");
   await expect(page.locator("main")).not.toContainText("2027–2029");
@@ -195,7 +195,7 @@ test("JSON 등록·중복 제거·검수 대기·사용자 검수·CSV 등록·�
   await expectNoDefaultVersionYears(page);
   await expect(page.locator(".bank-filter")).toContainText("기본 문제은행");
   await expect(page.locator(".bank-row")).toHaveCount(20);
-  await expect(page.locator(".pagination")).toContainText("1 / 3");
+  await expect(page.locator(".pagination")).toContainText("1 / 50");
   await page.getByLabel("문항 검색", { exact: true }).fill("CL2-S-030");
   await expect(page.locator(".bank-row")).toHaveCount(1);
   await page.locator(".bank-row summary").click();
@@ -497,4 +497,68 @@ test("IME·수정키 보호와 저장 실패 경고", async ({ page }) => {
   await page.keyboard.press("Space");
   await expect(page.locator(".question-stem")).not.toHaveText(text!);
   await expect(page.getByRole("alert")).toContainText("기록을 저장하지 못했습니다");
+});
+
+test("1,000문항 구성 표시·새 문항 검색·전체 내보내기",async({page})=>{
+  await page.goto("");
+  await expect(page.locator('.bank-summary')).toContainText('개별 작성 340개');
+  await expect(page.locator('.bank-summary')).toContainText('조건 변형 660개 (66유형)');
+  await nav(page,'문제은행 관리');
+  await expect(page.locator('.notice')).toContainText('1,000');
+  await page.getByLabel('문항 검색',{exact:true}).fill('CL2-C-CON-160');
+  await expect(page.locator('.bank-row')).toHaveCount(1);
+  await page.locator('.bank-row summary').click();
+  await expect(page.locator('.bank-row .explanation')).toContainText('통풍 관리');
+  await page.getByLabel('문항 검색',{exact:true}).fill('CL2-S-F35-10');
+  await expect(page.locator('.bank-row')).toHaveCount(1);
+  const waiting=page.waitForEvent('download');
+  await page.getByRole('button',{name:'전체 문항 내보내기',exact:true}).click();
+  const download=await waiting;
+  const {readFile}=await import('node:fs/promises');
+  const exported=JSON.parse(await readFile((await download.path())!,'utf8'));
+  expect(exported).toHaveLength(1000);
+  expect(new Set(exported.map((q:{id:string})=>q.id)).size).toBe(1000);
+  expect(exported.filter((q:{subject:string})=>q.subject==='컴퓨터 일반')).toHaveLength(500);
+});
+
+test("문자 함수 보기 공백 보존·새 유형 채점·Space 이동",async({page})=>{
+  await page.goto('');
+  const q=bank.find(q=>q.id==='CL2-S-F27-01')!;
+  await page.evaluate(({key,id})=>{
+    const s=JSON.parse(localStorage.getItem(key)!);
+    s.practice={version:'main',subject:'스프레드시트 일반',poolIds:[id,'CL2-S-F27-02'],currentId:id,selected:null,revealed:false,seen:[],streak:0,answered:0,correct:0};
+    localStorage.setItem(key,JSON.stringify(s));
+  },{key,id:q.id});
+  await page.reload();
+  await nav(page,'랜덤 문제풀이');
+  await expect(page.locator('.question-stem')).toContainText('TRIM');
+  const choices=page.getByRole('group',{name:'답안 선택'}).getByRole('button');
+  expect(await choices.nth(q.answer-1).locator('span').nth(1).evaluate(el=>getComputedStyle(el).whiteSpace)).toBe('pre-wrap');
+  await choices.nth(q.answer-1).click();
+  await expect(page.locator('.explanation')).toContainText('DATA01 ROW');
+  expect((await read(page)).practice.correct).toBe(1);
+  await page.keyboard.press('Space');
+  expect((await read(page)).practice.currentId).toBe('CL2-S-F27-02');
+  await expect(page.locator('.question-stem')).toBeFocused();
+});
+
+test("확장 전 60문항 은행의 진행 중 시험·오답·북마크 호환",async({page})=>{
+  await page.goto('');
+  const legacy=[...bank.filter(q=>q.id.match(/^CL2-C-\d{3}$/)).slice(0,20),...bank.filter(q=>q.id.match(/^CL2-S-\d{3}$/)).slice(0,20)];
+  expect(legacy).toHaveLength(40);
+  await page.evaluate(({key,questions})=>{
+    const s=JSON.parse(localStorage.getItem(key)!);
+    const now=Date.now();
+    s.bookmarks=['CL2-C-001'];s.wrongIds=['CL2-S-030'];
+    s.exam={id:'legacy-exam',version:'main',questions,answers:{'CL2-C-001':questions[0].answer},startedAt:now,deadline:now+40*60000};
+    localStorage.setItem(key,JSON.stringify(s));
+  },{key,questions:legacy});
+  await page.reload();
+  await expect(page.locator('.number-grid button')).toHaveCount(40);
+  await expect(page.locator('.question-stem')).toHaveText(legacy[0].question);
+  await expect(page.getByRole('button',{name:'북마크 해제'})).toBeVisible();
+  const s=await read(page);
+  expect(s.exam.answers['CL2-C-001']).toBe(legacy[0].answer);
+  expect(s.wrongIds).toEqual(['CL2-S-030']);
+  expect(s.exam.id).toBe('legacy-exam');
 });

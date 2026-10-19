@@ -1,9 +1,11 @@
 """Deterministic compilation of newly authored manuscripts; no third-party questions.
-No random numeric variants. Review evidence and limitations: docs/content-review.md.
+Deterministic condition variants are explicitly grouped. Review evidence and limitations: docs/content-review.md.
 """
 import csv
 import io
 import json
+from collections import Counter
+from expanded_bank import expanded_questions
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,11 +79,26 @@ def compile_bank():
             answer=(n-1)%4+1
             choices=wrong.copy();choices.insert(answer-1,correct)
             bank.append(dict(id=f'CL2-{prefix}-{n:03}',subject=subject,topic=topic,question=question,choices=choices,answer=answer,explanation=explanation,difficulty='하' if n%3 else '중',year=None,session=None,type='original',sourceUrl='https://github.com/YunSangYeong/Computer-Literacy2/blob/main/docs/content-review.md',verificationStatus='reviewed',reviewNote='AI 일반 지식 기반 자체 작성. 정답·오답 보기·해설 문장 내부 검토. 외부 자료 직접 대조 및 전문가 검수 미완료. docs/content-review.md 참고.',version='main',rights='자체 제작 · Computer-Literacy2 contributors · CC BY 4.0'))
-    return bank
+    return bank + expanded_questions()
 
 if __name__=='__main__':
     bank=compile_bank()
     (ROOT/'src/data/questions.json').write_text(json.dumps(bank,ensure_ascii=False,indent=2)+'\n')
+    report = {
+        'total': len(bank),
+        'bySubject': dict(Counter(q['subject'] for q in bank)),
+        'original': sum(q['type']=='original' for q in bank),
+        'past': sum(q['type']=='past' for q in bank),
+        'reconstructed': sum(q['type']=='reconstructed' for q in bank),
+        'preservedLegacy': 60,
+        'addedConceptQuestions': sum('conceptGroup' in q for q in bank),
+        'conditionVariants': sum('exercise' in q for q in bank),
+        'numericConditionVariants': sum(isinstance(q.get('exercise',{}).get('expected'),(int,float)) for q in bank),
+        'textConditionVariants': sum(isinstance(q.get('exercise',{}).get('expected'),str) for q in bank),
+        'families': dict(sorted(Counter(q['family'] for q in bank if 'family' in q).items())),
+        'reviewScope': '원고·보기·해설 내부 검토; 수치·함수는 별도 TypeScript 본문 파싱·독립 재계산. 외부 전문가 검수 미완료.'
+    }
+    (ROOT/'docs/bank-composition.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     example={**bank[0], 'id':'LOCAL-SAMPLE-001','question':'직접 작성한 문항을 이곳에 입력하세요.','verificationStatus':'pending','reviewNote':'출처·이용 권한·정답·해설을 확인하고 근거를 작성하세요.'}
     templates=ROOT/'public/templates'
     (templates/'questions.json').write_text(json.dumps([example],ensure_ascii=False,indent=2)+'\n')
@@ -89,4 +106,4 @@ if __name__=='__main__':
     for n,choice in enumerate(example['choices'],1):row[f'choice{n}']=choice
     out=io.StringIO();writer=csv.DictWriter(out,fieldnames=row.keys(),lineterminator="\n");writer.writeheader();writer.writerow(row)
     (templates/'questions.csv').write_text(out.getvalue(),encoding='utf-8-sig')
-    print(f'{len(bank)} original questions compiled, no numeric variants.')
+    print(f'{len(bank)} original questions compiled; {sum(bool(q.get("family")) for q in bank)} condition variants.')
