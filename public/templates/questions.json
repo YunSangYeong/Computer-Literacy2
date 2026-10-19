@@ -1,0 +1,25 @@
+[
+  {
+    "id": "LOCAL-SAMPLE-001",
+    "subject": "컴퓨터 일반",
+    "topic": "중앙처리장치",
+    "question": "직접 작성한 문항을 이곳에 입력하세요.",
+    "choices": [
+      "산술논리연산장치(ALU)",
+      "제어장치",
+      "보조기억장치",
+      "입력장치"
+    ],
+    "answer": 1,
+    "explanation": "ALU는 덧셈 등 산술 연산과 AND·OR 같은 논리 연산을 수행한다. 제어장치는 명령 해독과 실행 제어를 담당하므로 구별한다.",
+    "difficulty": "하",
+    "year": null,
+    "session": null,
+    "type": "original",
+    "sourceUrl": "https://github.com/YunSangYeong/Computer-Literacy2/blob/main/docs/content-review.md",
+    "verificationStatus": "pending",
+    "reviewNote": "출처·이용 권한·정답·해설을 확인하고 근거를 작성하세요.",
+    "version": "main",
+    "rights": "자체 제작 · Computer-Literacy2 contributors · CC BY 4.0"
+  }
+]

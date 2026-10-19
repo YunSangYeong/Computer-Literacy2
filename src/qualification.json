@@ -1,0 +1,25 @@
+{
+  "name": "컴퓨터활용능력 2급",
+  "slug": "computer-literacy-2",
+  "issuer": "대한상공회의소",
+  "bankId": "main",
+  "storageKey": "computer-literacy-2:cbt:v1",
+  "exam": {
+    "questionCount": 40,
+    "durationMinutes": 40,
+    "choiceCount": 4,
+    "questionsPerSubject": 20,
+    "maxScore": 100,
+    "passScore": 60,
+    "subjectCutoff": 40,
+    "unansweredPolicy": "오답으로 처리"
+  },
+  "subjects": [
+    "컴퓨터 일반",
+    "스프레드시트 일반"
+  ],
+  "rulesVerificationStatus": "pending",
+  "officialSource": "https://license.korcham.net/co/examguide.do?cd=0103&mm=21",
+  "rulesNote": "공식 안내 접속이 네트워크 정책의 403으로 차단되어 직접 대조 대기. 표시된 시험 규칙은 학습용 잠정 설정입니다. 실기 시험은 제공하지 않습니다.",
+  "dataNote": "기본 60문항은 AI 일반 지식을 바탕으로 새로 작성하고 정답·보기·해설을 내부 검토했습니다. 기출·복원 0개. 공식 출제기준 대조와 외부 전문가 검수는 미완료입니다."
+}
